@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void setup(int argc, char** argv, istream** inputStream) {
+void setup(int argc, char** argv, vector<string>& lines) {
 	
 	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
 	TCLAP::UnlabeledValueArg<string> filenameArg
@@ -15,12 +15,18 @@ void setup(int argc, char** argv, istream** inputStream) {
 	cmd.add(filenameArg);
 	cmd.parse(argc, argv);
 
+	istream* inputStream;
+
 	string filename = filenameArg.getValue();
 
 	if(filename == "") {
-		*inputStream = &cin;
+		inputStream = &cin;
 	} else {
-		*inputStream = new ifstream(filename.c_str());
+		inputStream = new ifstream(filename.c_str());
+	}
+
+	for (string line; getline(*inputStream, line); ) {
+		lines.push_back(line);
 	}
 }
 
@@ -28,11 +34,11 @@ int main(int argc, char* argv[]) {
 
 	try {
 
-		istream* inputStream = NULL;
-		setup(argc, argv, &inputStream);
+		vector<string> lines(0);
+		setup(argc, argv, lines);
 
-		for (string line; getline(*inputStream, line); ) {
-			cout << " - " << line << endl;
+		for(vector<string>::iterator it = lines.begin(); it != lines.end(); ++it) {
+		    cout << *it << endl;
 		}
 
 	} catch (TCLAP::ArgException &e) {

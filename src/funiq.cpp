@@ -1,35 +1,38 @@
+#include <string>
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <tclap/CmdLine.h>
 
 using namespace std;
+
+void setup(int argc, char** argv, istream** inputStream) {
+	
+	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
+	TCLAP::UnlabeledValueArg<string> filenameArg
+		("filename", "Optional file to read. If omitted will read from stdin.",
+		false, "", "filename");
+	
+	cmd.add(filenameArg);
+	cmd.parse(argc, argv);
+
+	string filename = filenameArg.getValue();
+
+	if(filename == "") {
+		*inputStream = &cin;
+	} else {
+		*inputStream = new ifstream(filename.c_str());
+	}
+}
 
 int main(int argc, char* argv[]) {
 
 	try {
 
-		TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
-		TCLAP::UnlabeledValueArg<string> filenameArg
-			("filename", "Optional file to read. If omitted will read from stdin.",
-			false, "", "filename");
-		
-		cmd.add(filenameArg);
-		cmd.parse(argc, argv);
-
-		string filename = filenameArg.getValue();
-		istream* inputStream;
-		ifstream fileStream;
-
-		if(filename == "") {
-			inputStream = &cin;
-		} else {
-			fileStream.open(filename.c_str());
-			inputStream = &fileStream;
-		}
+		istream* inputStream = NULL;
+		setup(argc, argv, &inputStream);
 
 		for (string line; getline(*inputStream, line); ) {
-			cout << "Hi " << line << "!" << endl;
+			cout << " - " << line << endl;
 		}
 
 	} catch (TCLAP::ArgException &e) {

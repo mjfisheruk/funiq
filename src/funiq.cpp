@@ -5,13 +5,15 @@
 #include <string>
 #include <tclap/CmdLine.h>
 
+#include "FuniqSettings.h"
+
 using namespace std;
 
 typedef vector<string> StringList;
 typedef map< string, StringList* > StringListMap;
 typedef pair<string, vector<string>* > StringListPair;
 
-void setup(int argc, char** argv, StringList& lines, unsigned int& maxDist, bool& caseInsensitive) {
+void setup(int argc, char** argv, StringList& lines, FuniqSettings& settings) {
 	
 	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
 	
@@ -32,8 +34,9 @@ void setup(int argc, char** argv, StringList& lines, unsigned int& maxDist, bool
 	cmd.add(caseSwitch);
 	cmd.parse(argc, argv);
 
-	maxDist = distanceArg.getValue();
-	caseInsensitive = caseSwitch.getValue();
+	settings.maxEditDistance = distanceArg.getValue();
+	settings.caseInsensitive = caseSwitch.getValue();
+	
 	string filename = filenameArg.getValue();
 
 	istream* inputStream;
@@ -75,7 +78,7 @@ void lowercase(string& s) {
 	transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
-void buildMap(StringList& lines, StringListMap& matchMap, const unsigned int maxDist, const bool caseInsensitive) {
+void buildMap(StringList& lines, StringListMap& matchMap, const FuniqSettings& settings) {
 
 	StringList::iterator linesIt;
 	StringListMap::iterator matchMapIt;
@@ -85,16 +88,16 @@ void buildMap(StringList& lines, StringListMap& matchMap, const unsigned int max
 	    string originalLine = *linesIt;
 
 	    string line = originalLine;
-	    if(caseInsensitive) lowercase(line);
+	    if(settings.caseInsensitive) lowercase(line);
 
 	    for(matchMapIt = matchMap.begin(); matchMapIt != matchMap.end(); ++matchMapIt) {
 	    	
 	    	StringListPair matchPair = *matchMapIt;	
 	    	string key = matchPair.first;
-	    	if(caseInsensitive) lowercase(key);
+	    	if(settings.caseInsensitive) lowercase(key);
 	    	StringList* matchList = matchPair.second;	
     		
-    		if(levenshteinDistance(line, key) <= maxDist) {
+    		if(levenshteinDistance(line, key) <= settings.maxEditDistance) {
     			matchFound = true;
     			key = matchPair.first;
     			matchList->push_back(originalLine);
@@ -131,13 +134,13 @@ int main(int argc, char* argv[]) {
 	
 	try {
 
-		StringListMap matchMap;
+		FuniqSettings settings;
 		vector<string> lines(0);
-		unsigned int maxDist;
-		bool caseInsensitive;
-
-		setup(argc, argv, lines, maxDist, caseInsensitive);
-		buildMap(lines, matchMap, maxDist, caseInsensitive);
+		setup(argc, argv, lines, settings);
+		
+		StringListMap matchMap;
+		buildMap(lines, matchMap, settings);
+		
 		displayResults(matchMap);
 
 	} catch (TCLAP::ArgException &e) {

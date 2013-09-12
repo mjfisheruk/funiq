@@ -11,28 +11,32 @@ typedef vector<string> StringList;
 typedef map< string, StringList* > StringListMap;
 typedef pair<string, vector<string>* > StringListPair;
 
-void setup(int argc, char** argv, StringList& lines, unsigned int& maxDist) {
+void setup(int argc, char** argv, StringList& lines, unsigned int& maxDist, bool& caseInsensitive) {
 	
 	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
+	
 	TCLAP::UnlabeledValueArg<string> filenameArg (
 		"filename",
 		"File to read. If omitted will read from stdin.",
 		false, "", "filename");
 	TCLAP::ValueArg<unsigned int> distanceArg(
 		"d","distance",
-		"Maximum edit distance between two strings to be considered a match",
+		"Maximum edit distance between two strings to be considered a match.",
 		false, 3, "integer");
-
+	TCLAP::SwitchArg caseSwitch(
+		"i","case-insensitive",
+		"When active, case differences do not contribute to edit distance.");
+	
 	cmd.add(filenameArg);
 	cmd.add(distanceArg);
+	cmd.add(caseSwitch);
 	cmd.parse(argc, argv);
 
 	maxDist = distanceArg.getValue();
-
-	istream* inputStream;
-
+	caseInsensitive = caseSwitch.getValue();
 	string filename = filenameArg.getValue();
 
+	istream* inputStream;
 	if(filename == "") {
 		inputStream = &cin;
 	} else {
@@ -71,7 +75,7 @@ void lowercase(string& s) {
 	transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
-void buildMap(StringList& lines, StringListMap& matchMap, const unsigned int maxDist) {
+void buildMap(StringList& lines, StringListMap& matchMap, const unsigned int maxDist, const bool caseInsensitive) {
 
 	StringList::iterator linesIt;
 	StringListMap::iterator matchMapIt;
@@ -81,13 +85,13 @@ void buildMap(StringList& lines, StringListMap& matchMap, const unsigned int max
 	    string originalLine = *linesIt;
 
 	    string line = originalLine;
-	    lowercase(line);
+	    if(caseInsensitive) lowercase(line);
 
 	    for(matchMapIt = matchMap.begin(); matchMapIt != matchMap.end(); ++matchMapIt) {
 	    	
 	    	StringListPair matchPair = *matchMapIt;	
 	    	string key = matchPair.first;
-	    	lowercase(key);
+	    	if(caseInsensitive) lowercase(key);
 	    	StringList* matchList = matchPair.second;	
     		
     		if(levenshteinDistance(line, key) <= maxDist) {
@@ -130,9 +134,10 @@ int main(int argc, char* argv[]) {
 		StringListMap matchMap;
 		vector<string> lines(0);
 		unsigned int maxDist;
+		bool caseInsensitive;
 
-		setup(argc, argv, lines, maxDist);
-		buildMap(lines, matchMap, maxDist);
+		setup(argc, argv, lines, maxDist, caseInsensitive);
+		buildMap(lines, matchMap, maxDist, caseInsensitive);
 		displayResults(matchMap);
 
 	} catch (TCLAP::ArgException &e) {

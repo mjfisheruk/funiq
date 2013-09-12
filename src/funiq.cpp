@@ -35,6 +35,28 @@ void setup(int argc, char** argv, StringList& lines) {
 	}
 }
 
+unsigned int levenshteinDistance(const string& s1, const string& s2) {
+    unsigned int len1 = s1.size();
+    unsigned int len2 = s2.size();
+    vector<unsigned int> col(len2+1);
+    vector<unsigned int> prevCol(len2+1);
+
+    for (unsigned int i = 0; i < prevCol.size(); i++) {
+		prevCol[i] = i;
+    }
+    for (unsigned int i = 0; i < len1; i++) {
+		col[0] = i+1;
+		for (unsigned int j = 0; j < len2; j++) {
+			col[j+1] = min(
+				min( 1 + col[j], 1 + prevCol[1 + j]),
+		        prevCol[j] + (s1[i]==s2[j] ? 0 : 1)
+		    );
+		}
+		col.swap(prevCol);
+    }
+    return prevCol[len2];
+}
+
 void buildMap(StringList& lines, StringListMap& matchMap) {
 
 	StringList::iterator linesIt;
@@ -50,7 +72,7 @@ void buildMap(StringList& lines, StringListMap& matchMap) {
 	    	string key = matchPair.first;
 	    	StringList* matchList = matchPair.second;	
     		
-    		if(line == key) {
+    		if(levenshteinDistance(line, key) <= 3) {
     			matchFound = true;
     			key = matchPair.first;
     			matchList->push_back(line);
@@ -86,7 +108,7 @@ void displayResults(StringListMap& matchMap) {
 int main(int argc, char* argv[]) {
 	
 	try {
-		
+
 		StringListMap matchMap;
 		vector<string> lines(0);
 		setup(argc, argv, lines);

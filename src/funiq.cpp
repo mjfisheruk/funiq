@@ -10,15 +10,23 @@ typedef vector<string> StringList;
 typedef map< string, StringList* > StringListMap;
 typedef pair<string, vector<string>* > StringListPair;
 
-void setup(int argc, char** argv, StringList& lines) {
+void setup(int argc, char** argv, StringList& lines, unsigned int& maxDist) {
 	
 	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
-	TCLAP::UnlabeledValueArg<string> filenameArg
-		("filename", "Optional file to read. If omitted will read from stdin.",
+	TCLAP::UnlabeledValueArg<string> filenameArg (
+		"filename",
+		"File to read. If omitted will read from stdin.",
 		false, "", "filename");
-	
+	TCLAP::ValueArg<unsigned int> distanceArg(
+		"d","distance",
+		"Maximum edit distance between two strings to be considered a match",
+		false, 3, "integer");
+
 	cmd.add(filenameArg);
+	cmd.add(distanceArg);
 	cmd.parse(argc, argv);
+
+	maxDist = distanceArg.getValue();
 
 	istream* inputStream;
 
@@ -57,7 +65,7 @@ unsigned int levenshteinDistance(const string& s1, const string& s2) {
     return prevCol[len2];
 }
 
-void buildMap(StringList& lines, StringListMap& matchMap) {
+void buildMap(StringList& lines, StringListMap& matchMap, const unsigned int maxDist) {
 
 	StringList::iterator linesIt;
 	StringListMap::iterator matchMapIt;
@@ -72,7 +80,7 @@ void buildMap(StringList& lines, StringListMap& matchMap) {
 	    	string key = matchPair.first;
 	    	StringList* matchList = matchPair.second;	
     		
-    		if(levenshteinDistance(line, key) <= 3) {
+    		if(levenshteinDistance(line, key) <= maxDist) {
     			matchFound = true;
     			key = matchPair.first;
     			matchList->push_back(line);
@@ -111,8 +119,10 @@ int main(int argc, char* argv[]) {
 
 		StringListMap matchMap;
 		vector<string> lines(0);
-		setup(argc, argv, lines);
-		buildMap(lines, matchMap);
+		unsigned int maxDist;
+
+		setup(argc, argv, lines, maxDist);
+		buildMap(lines, matchMap, maxDist);
 		displayResults(matchMap);
 
 	} catch (TCLAP::ArgException &e) {

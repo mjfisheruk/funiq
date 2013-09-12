@@ -13,7 +13,7 @@ typedef vector<string> StringList;
 typedef map< string, StringList* > StringListMap;
 typedef pair<string, vector<string>* > StringListPair;
 
-void setup(int argc, char** argv, StringList& lines, FuniqSettings& settings) {
+void parseCommandLine(int argc, char** argv, string& filename, FuniqSettings& settings) {
 	
 	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
 	
@@ -35,10 +35,11 @@ void setup(int argc, char** argv, StringList& lines, FuniqSettings& settings) {
 	cmd.parse(argc, argv);
 
 	settings.maxEditDistance = distanceArg.getValue();
-	settings.caseInsensitive = caseSwitch.getValue();
-	
-	string filename = filenameArg.getValue();
+	settings.caseInsensitive = caseSwitch.getValue();	
+	filename = filenameArg.getValue();	
+}
 
+void readLines(const string& filename, StringList& lines) {
 	istream* inputStream;
 	if(filename == "") {
 		inputStream = &cin;
@@ -134,9 +135,12 @@ int main(int argc, char* argv[]) {
 	
 	try {
 
+		string filename;
 		FuniqSettings settings;
+		parseCommandLine(argc, argv, filename, settings);
+		
 		vector<string> lines(0);
-		setup(argc, argv, lines, settings);
+		readLines(filename, lines);
 		
 		StringListMap matchMap;
 		buildMap(lines, matchMap, settings);

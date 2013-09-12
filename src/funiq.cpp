@@ -1,7 +1,8 @@
-#include <string>
-#include <map>
-#include <iostream>
+#include <algorithm>
 #include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
 #include <tclap/CmdLine.h>
 
 using namespace std;
@@ -44,6 +45,7 @@ void setup(int argc, char** argv, StringList& lines, unsigned int& maxDist) {
 }
 
 unsigned int levenshteinDistance(const string& s1, const string& s2) {
+    
     unsigned int len1 = s1.size();
     unsigned int len2 = s2.size();
     vector<unsigned int> col(len2+1);
@@ -65,6 +67,10 @@ unsigned int levenshteinDistance(const string& s1, const string& s2) {
     return prevCol[len2];
 }
 
+void lowercase(string& s) {
+	transform(s.begin(), s.end(), s.begin(), ::tolower);
+}
+
 void buildMap(StringList& lines, StringListMap& matchMap, const unsigned int maxDist) {
 
 	StringList::iterator linesIt;
@@ -72,25 +78,29 @@ void buildMap(StringList& lines, StringListMap& matchMap, const unsigned int max
 
 	for(linesIt = lines.begin(); linesIt != lines.end(); ++linesIt) {
 	    bool matchFound = false;
-	    string line = *linesIt;
-	    
+	    string originalLine = *linesIt;
+
+	    string line = originalLine;
+	    lowercase(line);
+
 	    for(matchMapIt = matchMap.begin(); matchMapIt != matchMap.end(); ++matchMapIt) {
 	    	
 	    	StringListPair matchPair = *matchMapIt;	
 	    	string key = matchPair.first;
+	    	lowercase(key);
 	    	StringList* matchList = matchPair.second;	
     		
     		if(levenshteinDistance(line, key) <= maxDist) {
     			matchFound = true;
     			key = matchPair.first;
-    			matchList->push_back(line);
+    			matchList->push_back(originalLine);
     			continue;
     		}
 	    }
 
 	    if(!matchFound) {
 	    	StringList* matchList = new StringList(0);
-	    	matchList->push_back(line);
+	    	matchList->push_back(originalLine);
 	    	matchMap[line] = matchList;
 	    }
 	}

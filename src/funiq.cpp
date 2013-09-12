@@ -6,7 +6,11 @@
 
 using namespace std;
 
-void setup(int argc, char** argv, vector<string>& lines) {
+typedef vector<string> StringList;
+typedef map< string, StringList* > StringListMap;
+typedef pair<string, vector<string>* > StringListPair;
+
+void setup(int argc, char** argv, StringList& lines) {
 	
 	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
 	TCLAP::UnlabeledValueArg<string> filenameArg
@@ -31,55 +35,63 @@ void setup(int argc, char** argv, vector<string>& lines) {
 	}
 }
 
+void buildMap(StringList& lines, StringListMap& matchMap) {
+
+	StringList::iterator linesIt;
+	StringListMap::iterator matchMapIt;
+
+	for(linesIt = lines.begin(); linesIt != lines.end(); ++linesIt) {
+	    bool matchFound = false;
+	    string line = *linesIt;
+	    
+	    for(matchMapIt = matchMap.begin(); matchMapIt != matchMap.end(); ++matchMapIt) {
+	    	
+	    	StringListPair matchPair = *matchMapIt;	
+	    	string key = matchPair.first;
+	    	StringList* matchList = matchPair.second;	
+    		
+    		if(line == key) {
+    			matchFound = true;
+    			key = matchPair.first;
+    			matchList->push_back(line);
+    			continue;
+    		}
+	    }
+
+	    if(!matchFound) {
+	    	StringList* matchList = new StringList(0);
+	    	matchList->push_back(line);
+	    	matchMap[line] = matchList;
+	    }
+	}
+
+}
+
+void displayResults(StringListMap& matchMap) {
+	
+	StringListMap::iterator matchIt;
+	StringList::iterator matchItemIt;
+
+	for(matchIt = matchMap.begin(); matchIt != matchMap.end(); ++matchIt) {
+		StringListPair matchPair = *matchIt;
+		StringList v = *matchPair.second;
+		for(matchItemIt = v.begin(); matchItemIt != v.end(); ++matchItemIt) {
+	    	string matchItem = *matchItemIt;
+	    	cout << matchItem << "\t";
+	    }
+	    cout << endl;
+	}
+}
+
 int main(int argc, char* argv[]) {
-
-	typedef map< string, vector<string>* > StringListMap;
-
+	
 	try {
-
-		StringListMap matches;
+		
+		StringListMap matchMap;
 		vector<string> lines(0);
 		setup(argc, argv, lines);
-		StringListMap::iterator matchIt;
-		vector<string>::iterator matchItemIt;
-
-		//For every line in input, compare with every key in the hashmap
-		vector<string>::iterator inputIt;
-		for(inputIt = lines.begin(); inputIt != lines.end(); ++inputIt) {
-		    string line = *inputIt;
-		    bool matchFound = false;
-		    string matchKey;
-		    for(matchIt = matches.begin(); matchIt != matches.end(); ++matchIt) {
-		    	pair<string, vector<string>* > matchPair = *matchIt;
-		    	vector<string> matchList = *matchPair.second;
-		    	for(matchItemIt = matchList.begin(); matchItemIt != matchList.end(); ++matchItemIt) {
-		    		string matchItem = *matchItemIt;
-		    		if(matchItem == line) {
-		    			matchFound = true;
-		    			matchKey = matchPair.first;
-		    			continue;
-		    		}
-		    	}
-		    }
-		    if(matchFound) {
-    			vector<string>* v = matches[matchKey];
-    			v->push_back(line);
-		    } else {	
-		    	vector<string>* v = new vector<string>(0);
-		    	v->push_back(line);
-		    	matches[line] = v;
-		    }
-		}
-
-		for(matchIt = matches.begin(); matchIt != matches.end(); ++matchIt) {
-			pair<string, vector<string>* > matchPair = *matchIt;
-			vector<string> v = *matchPair.second;
-			for(matchItemIt = v.begin(); matchItemIt != v.end(); ++matchItemIt) {
-		    	string matchItem = *matchItemIt;
-		    	cout << matchItem << " ";
-		    }
-		    cout << endl;
-		}
+		buildMap(lines, matchMap);
+		displayResults(matchMap);
 
 	} catch (TCLAP::ArgException &e) {
 		cerr << "An error occured: ";

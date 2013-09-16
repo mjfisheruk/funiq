@@ -136,16 +136,16 @@ int main(int argc, char* argv[]) {
 		FuniqSettings settings;
 		parseCommandLine(argc, argv, filename, settings);
 		
-		StringList lines(0);
-		readLines(filename, lines);
-		
-		StringListMap matchMap;
-		buildMap(lines, matchMap, settings);
-		
-		displayResults(matchMap, settings);
+		Matcher matcher;
+		std::istream* inputStream = getInput(filename);		
+		for (std::string line; getline(*inputStream, line); ) {
+			matcher.add(line);
+		}
+
+		matcher.show(std::cout)
 
 	} catch (TCLAP::ArgException &e) {
-		std::cerr << "An error occured: ";
+		std::cerr << "An error occurred: ";
 		std::cerr << e.error() << " for arg " << e.argId() << std::endl;
 	}
 }

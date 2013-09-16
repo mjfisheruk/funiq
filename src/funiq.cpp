@@ -28,14 +28,19 @@ void parseCommandLine(int argc, char** argv, string& filename, FuniqSettings& se
 	TCLAP::SwitchArg caseSwitch(
 		"i","case-insensitive",
 		"When active, case differences do not contribute to edit distance.");
+	TCLAP::SwitchArg showAllSwitch(
+		"a","show-all",
+		"Will show all found duplicates");
 	
 	cmd.add(filenameArg);
 	cmd.add(distanceArg);
 	cmd.add(caseSwitch);
+	cmd.add(showAllSwitch);
 	cmd.parse(argc, argv);
 
 	settings.maxEditDistance = distanceArg.getValue();
-	settings.caseInsensitive = caseSwitch.getValue();	
+	settings.caseInsensitive = caseSwitch.getValue();
+	settings.showAllMatches	= showAllSwitch.getValue();
 	filename = filenameArg.getValue();	
 }
 
@@ -115,7 +120,7 @@ void buildMap(StringList& lines, StringListMap& matchMap, const FuniqSettings& s
 
 }
 
-void displayResults(StringListMap& matchMap) {
+void displayResults(StringListMap& matchMap, FuniqSettings& settings) {
 	
 	StringListMap::iterator matchIt;
 	StringList::iterator matchItemIt;
@@ -125,7 +130,11 @@ void displayResults(StringListMap& matchMap) {
 		StringList v = *matchPair.second;
 		for(matchItemIt = v.begin(); matchItemIt != v.end(); ++matchItemIt) {
 			string matchItem = *matchItemIt;
-			cout << matchItem << "\t";
+			bool firstIteration = (matchItemIt == v.begin()); 
+			if(firstIteration || settings.showAllMatches) {
+				if(!firstIteration) cout << "\t";
+				cout << matchItem;
+			}
 		}
 		cout << endl;
 	}
@@ -145,7 +154,7 @@ int main(int argc, char* argv[]) {
 		StringListMap matchMap;
 		buildMap(lines, matchMap, settings);
 		
-		displayResults(matchMap);
+		displayResults(matchMap, settings);
 
 	} catch (TCLAP::ArgException &e) {
 		cerr << "An error occured: ";

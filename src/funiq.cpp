@@ -7,16 +7,14 @@
 
 #include "FuniqSettings.h"
 
-using namespace std;
+typedef std::vector<std::string> StringList;
+typedef std::map< std::string, StringList* > StringListMap;
 
-typedef vector<string> StringList;
-typedef map< string, StringList* > StringListMap;
-
-void parseCommandLine(int argc, char** argv, string& filename, FuniqSettings& settings) {
+void parseCommandLine(int argc, char** argv, std::string& filename, FuniqSettings& settings) {
 	
 	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
 	
-	TCLAP::UnlabeledValueArg<string> filenameArg (
+	TCLAP::UnlabeledValueArg<std::string> filenameArg (
 		"filename",
 		"File to read. If omitted will read from stdin.",
 		false, "", "filename");
@@ -43,25 +41,25 @@ void parseCommandLine(int argc, char** argv, string& filename, FuniqSettings& se
 	filename = filenameArg.getValue();	
 }
 
-void readLines(const string& filename, StringList& lines) {
-	istream* inputStream;
+void readLines(const std::string& filename, StringList& lines) {
+	std::istream* inputStream;
 	if(filename == "") {
-		inputStream = &cin;
+		inputStream = &std::cin;
 	} else {
-		inputStream = new ifstream(filename.c_str());
+		inputStream = new std::ifstream(filename.c_str());
 	}
 
-	for (string line; getline(*inputStream, line); ) {
+	for (std::string line; getline(*inputStream, line); ) {
 		lines.push_back(line);
 	}
 }
 
-unsigned int levenshteinDistance(const string& s1, const string& s2) {
+unsigned int levenshteinDistance(const std::string& s1, const std::string& s2) {
 	
 	unsigned int len1 = s1.size();
 	unsigned int len2 = s2.size();
-	vector<unsigned int> col(len2+1);
-	vector<unsigned int> prevCol(len2+1);
+	std::vector<unsigned int> col(len2+1);
+	std::vector<unsigned int> prevCol(len2+1);
 
 	for (unsigned int i = 0; i < prevCol.size(); i++) {
 		prevCol[i] = i;
@@ -69,8 +67,8 @@ unsigned int levenshteinDistance(const string& s1, const string& s2) {
 	for (unsigned int i = 0; i < len1; i++) {
 		col[0] = i+1;
 		for (unsigned int j = 0; j < len2; j++) {
-			col[j+1] = min(
-				min( 1 + col[j], 1 + prevCol[1 + j]),
+			col[j+1] = std::min(
+				std::min( 1 + col[j], 1 + prevCol[1 + j]),
 				prevCol[j] + (s1[i]==s2[j] ? 0 : 1)
 			);
 		}
@@ -79,21 +77,21 @@ unsigned int levenshteinDistance(const string& s1, const string& s2) {
 	return prevCol[len2];
 }
 
-void lowercase(string& s) {
+void lowercase(std::string& s) {
 	transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
 void buildMap(StringList& lines, StringListMap& matchMap, const FuniqSettings& settings) {
 
-	for(string originalLine : lines) {
+	for(std::string originalLine : lines) {
 		bool matchFound = false;
 
-		string line = originalLine;
+		std::string line = originalLine;
 		if(settings.caseInsensitive) lowercase(line);
 
 		for(auto matchPair : matchMap) {
 
-			string key = matchPair.first;
+			std::string key = matchPair.first;
 			if(settings.caseInsensitive) lowercase(key);
 			StringList* matchList = matchPair.second;	
 			
@@ -119,14 +117,14 @@ void displayResults(StringListMap& matchMap, FuniqSettings& settings) {
 	for(auto matchPair : matchMap) {
 		StringList v = *matchPair.second;
 		bool first = true;
-		for(string matchItem : v) {
+		for(std::string matchItem : v) {
 			if(first || settings.showAllMatches) {
-				if(!first) cout << "\t";
-				cout << matchItem;
+				if(!first) std::cout << "\t";
+				std::cout << matchItem;
 				first = false;
 			}
 		}
-		cout << endl;
+		std::cout << std::endl;
 	}
 }
 
@@ -134,11 +132,11 @@ int main(int argc, char* argv[]) {
 	
 	try {
 
-		string filename;
+		std::string filename;
 		FuniqSettings settings;
 		parseCommandLine(argc, argv, filename, settings);
 		
-		vector<string> lines(0);
+		StringList lines(0);
 		readLines(filename, lines);
 		
 		StringListMap matchMap;
@@ -147,7 +145,7 @@ int main(int argc, char* argv[]) {
 		displayResults(matchMap, settings);
 
 	} catch (TCLAP::ArgException &e) {
-		cerr << "An error occured: ";
-		cerr << e.error() << " for arg " << e.argId() << std::endl;
+		std::cerr << "An error occured: ";
+		std::cerr << e.error() << " for arg " << e.argId() << std::endl;
 	}
 }

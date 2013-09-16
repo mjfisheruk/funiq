@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall
+CFLAGS=-Wall -g -std=c++0x
 OUT=bin/funiq
 
 all: funiq

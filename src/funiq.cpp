@@ -11,7 +11,6 @@ using namespace std;
 
 typedef vector<string> StringList;
 typedef map< string, StringList* > StringListMap;
-typedef pair<string, vector<string>* > StringListPair;
 
 void parseCommandLine(int argc, char** argv, string& filename, FuniqSettings& settings) {
 	
@@ -86,19 +85,14 @@ void lowercase(string& s) {
 
 void buildMap(StringList& lines, StringListMap& matchMap, const FuniqSettings& settings) {
 
-	StringList::iterator linesIt;
-	StringListMap::iterator matchMapIt;
-
-	for(linesIt = lines.begin(); linesIt != lines.end(); ++linesIt) {
+	for(string originalLine : lines) {
 		bool matchFound = false;
-		string originalLine = *linesIt;
 
 		string line = originalLine;
 		if(settings.caseInsensitive) lowercase(line);
 
-		for(matchMapIt = matchMap.begin(); matchMapIt != matchMap.end(); ++matchMapIt) {
-			
-			StringListPair matchPair = *matchMapIt;	
+		for(auto matchPair : matchMap) {
+
 			string key = matchPair.first;
 			if(settings.caseInsensitive) lowercase(key);
 			StringList* matchList = matchPair.second;	
@@ -122,18 +116,14 @@ void buildMap(StringList& lines, StringListMap& matchMap, const FuniqSettings& s
 
 void displayResults(StringListMap& matchMap, FuniqSettings& settings) {
 	
-	StringListMap::iterator matchIt;
-	StringList::iterator matchItemIt;
-
-	for(matchIt = matchMap.begin(); matchIt != matchMap.end(); ++matchIt) {
-		StringListPair matchPair = *matchIt;
+	for(auto matchPair : matchMap) {
 		StringList v = *matchPair.second;
-		for(matchItemIt = v.begin(); matchItemIt != v.end(); ++matchItemIt) {
-			string matchItem = *matchItemIt;
-			bool firstIteration = (matchItemIt == v.begin()); 
-			if(firstIteration || settings.showAllMatches) {
-				if(!firstIteration) cout << "\t";
+		bool first = true;
+		for(string matchItem : v) {
+			if(first || settings.showAllMatches) {
+				if(!first) cout << "\t";
 				cout << matchItem;
+				first = false;
 			}
 		}
 		cout << endl;

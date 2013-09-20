@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <functional>
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -31,18 +33,23 @@ void parseCommandLine(int argc, char** argv, std::string& filename, FuniqSetting
 	TCLAP::SwitchArg showTotalsSwitch(
 		"t","show-totals",
 		"Shows total number of matches per item");
+	TCLAP::SwitchArg ignoreNonAlphaNumericSwitch(
+		"c","ignore-non-alpha-numeric",
+		"When active, non-alphanumeric characters do not contribute to edit distance.");
 	
 	cmd.add(filenameArg);
 	cmd.add(distanceArg);
 	cmd.add(caseSwitch);
 	cmd.add(showAllSwitch);
 	cmd.add(showTotalsSwitch);
+	cmd.add(ignoreNonAlphaNumericSwitch);
 	cmd.parse(argc, argv);
 
 	settings.maxEditDistance = distanceArg.getValue();
 	settings.caseInsensitive = caseSwitch.getValue();
 	settings.showAllMatches	= showAllSwitch.getValue();
 	settings.showTotals = showTotalsSwitch.getValue();
+	settings.ignoreNonAlphaNumeric = ignoreNonAlphaNumericSwitch.getValue();
 	filename = filenameArg.getValue();	
 }
 
@@ -86,6 +93,14 @@ void lowercase(std::string& s) {
 	transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
+bool nonAlphaNumeric(char c) {
+	return !std::isalnum(c);
+}
+
+void removeNonAlphaNumeric(std::string& s) {
+	s.erase(std::remove_if(s.begin(), s.end(), nonAlphaNumeric), s.end());
+}
+
 void buildMap(StringList& lines, StringListMap& matchMap, const FuniqSettings& settings) {
 
 	for(std::string originalLine : lines) {
@@ -93,11 +108,15 @@ void buildMap(StringList& lines, StringListMap& matchMap, const FuniqSettings& s
 
 		std::string line = originalLine;
 		if(settings.caseInsensitive) lowercase(line);
+		if(settings.ignoreNonAlphaNumeric) removeNonAlphaNumeric(line);
 
 		for(auto matchPair : matchMap) {
 
 			std::string key = matchPair.first;
+
 			if(settings.caseInsensitive) lowercase(key);
+			if(settings.ignoreNonAlphaNumeric) removeNonAlphaNumeric(key);
+			
 			StringList* matchList = matchPair.second;	
 			
 			if(levenshteinDistance(line, key) <= settings.maxEditDistance) {
@@ -139,7 +158,7 @@ void displayResults(StringListMap& matchMap, FuniqSettings& settings) {
 }
 
 int main(int argc, char* argv[]) {
-	
+
 	try {
 
 		std::string filename;

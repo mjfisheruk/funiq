@@ -28,16 +28,21 @@ void parseCommandLine(int argc, char** argv, std::string& filename, FuniqSetting
 	TCLAP::SwitchArg showAllSwitch(
 		"a","show-all",
 		"Will show all found duplicates");
+	TCLAP::SwitchArg showTotalsSwitch(
+		"t","show-totals",
+		"Shows total number of matches per item");
 	
 	cmd.add(filenameArg);
 	cmd.add(distanceArg);
 	cmd.add(caseSwitch);
 	cmd.add(showAllSwitch);
+	cmd.add(showTotalsSwitch);
 	cmd.parse(argc, argv);
 
 	settings.maxEditDistance = distanceArg.getValue();
 	settings.caseInsensitive = caseSwitch.getValue();
 	settings.showAllMatches	= showAllSwitch.getValue();
+	settings.showTotals = showTotalsSwitch.getValue();
 	filename = filenameArg.getValue();	
 }
 
@@ -116,6 +121,11 @@ void displayResults(StringListMap& matchMap, FuniqSettings& settings) {
 	
 	for(auto matchPair : matchMap) {
 		StringList v = *matchPair.second;
+
+		if(settings.showTotals) {
+			std::cout << v.size() << "\t";
+		}
+
 		bool first = true;
 		for(std::string matchItem : v) {
 			if(first || settings.showAllMatches) {

@@ -10,7 +10,7 @@
 
 void parseCommandLine(int argc, char** argv, std::string& filename, Settings& settings) {
 	
-	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
+		TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
 	
 	TCLAP::UnlabeledValueArg<std::string> filenameArg (
 		"filename",
@@ -26,16 +26,26 @@ void parseCommandLine(int argc, char** argv, std::string& filename, Settings& se
 	TCLAP::SwitchArg showAllSwitch(
 		"a","show-all",
 		"Will show all found duplicates");
+	TCLAP::SwitchArg showTotalsSwitch(
+		"t","show-totals",
+		"Shows total number of matches per item");
+	TCLAP::SwitchArg ignoreNonAlphaNumericSwitch(
+		"c","ignore-non-alpha-numeric",
+		"When active, non-alphanumeric characters do not contribute to edit distance.");
 	
 	cmd.add(filenameArg);
 	cmd.add(distanceArg);
 	cmd.add(caseSwitch);
 	cmd.add(showAllSwitch);
+	cmd.add(showTotalsSwitch);
+	cmd.add(ignoreNonAlphaNumericSwitch);
 	cmd.parse(argc, argv);
 
 	settings.maxEditDistance = distanceArg.getValue();
 	settings.caseInsensitive = caseSwitch.getValue();
 	settings.showAllMatches	= showAllSwitch.getValue();
+	settings.showTotals = showTotalsSwitch.getValue();
+	settings.ignoreNonAlphaNumeric = ignoreNonAlphaNumericSwitch.getValue();
 	filename = filenameArg.getValue();	
 }
 

@@ -7,12 +7,14 @@ struct Settings
 		maxEditDistance(3),
 		caseInsensitive(false),
 		showAllMatches(false),
-		showTotals(false) {}
+		showTotals(false),
+		ignoreNonAlphaNumeric(false){}
 
 	unsigned int maxEditDistance;
 	bool caseInsensitive;
 	bool showAllMatches;
 	bool showTotals;
+	bool ignoreNonAlphaNumeric;
 };
 
 #endif

@@ -3,14 +3,12 @@
 #include <iostream>
 #include <map>
 #include <string>
-#include <tclap/CmdLine.h>
 
-#include "FuniqSettings.h"
+#include "tclap/CmdLine.h"
+#include "funiq/Settings.h"
+#include "funiq/Matcher.h"
 
-typedef std::vector<std::string> StringList;
-typedef std::map< std::string, StringList* > StringListMap;
-
-void parseCommandLine(int argc, char** argv, std::string& filename, FuniqSettings& settings) {
+void parseCommandLine(int argc, char** argv, std::string& filename, Settings& settings) {
 	
 	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
 	
@@ -81,7 +79,7 @@ void lowercase(std::string& s) {
 	transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
-void buildMap(StringList& lines, StringListMap& matchMap, const FuniqSettings& settings) {
+void buildMap(StringList& lines, StringListMap& matchMap, const Settings& settings) {
 
 	for(std::string originalLine : lines) {
 		bool matchFound = false;
@@ -112,7 +110,7 @@ void buildMap(StringList& lines, StringListMap& matchMap, const FuniqSettings& s
 
 }
 
-void displayResults(StringListMap& matchMap, FuniqSettings& settings) {
+void displayResults(StringListMap& matchMap, Settings& settings) {
 	
 	for(auto matchPair : matchMap) {
 		StringList v = *matchPair.second;
@@ -128,21 +126,35 @@ void displayResults(StringListMap& matchMap, FuniqSettings& settings) {
 	}
 }
 
+
+
+
+
+std::istream* getInput(const std::string& filename) {
+	std::istream* inputStream;
+	if(filename == "") {
+		inputStream = &std::cin;
+	} else {
+		inputStream = new std::ifstream(filename.c_str());
+	}
+	return inputStream;
+}
+
 int main(int argc, char* argv[]) {
 	
 	try {
 
 		std::string filename;
-		FuniqSettings settings;
+		Settings settings;
 		parseCommandLine(argc, argv, filename, settings);
 		
-		Matcher matcher;
+		Matcher matcher(settings);
 		std::istream* inputStream = getInput(filename);		
 		for (std::string line; getline(*inputStream, line); ) {
 			matcher.add(line);
 		}
 
-		matcher.show(std::cout)
+		matcher.show(&std::cout);
 
 	} catch (TCLAP::ArgException &e) {
 		std::cerr << "An error occurred: ";

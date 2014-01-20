@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include <functional>
+#include <cctype>
+#include <map>
 
 #include "Settings.h"
 
@@ -20,6 +23,8 @@ private:
 	Settings& _settings;
 	StringListMap* matchMap;
 	void lowercase(std::string& s);
+	bool nonAlphaNumeric(char c);
+	void removeNonAlphaNumeric(std::string& s);
 	unsigned int levenshteinDistance(const std::string& s1, const std::string& s2);
 };
 
@@ -34,6 +39,7 @@ Matcher::~Matcher() {
 void Matcher::add(std::string line) {
 	bool matchFound = false;
 	if(_settings.caseInsensitive) lowercase(line);
+	if(_settings.ignoreNonAlphaNumeric) removeNonAlphaNumeric(line);
 	for(auto matchPair : *matchMap) {
 		std::string key = matchPair.first;
 		if(_settings.caseInsensitive) lowercase(key);
@@ -70,6 +76,14 @@ void Matcher::show(std::ostream* output) {
 
 void Matcher::lowercase(std::string& s) {
 	transform(s.begin(), s.end(), s.begin(), ::tolower);
+}
+
+bool Matcher::nonAlphaNumeric(char c) {
+	return !std::isalnum(c);
+}
+
+void Matcher::removeNonAlphaNumeric(std::string& s) {
+	s.erase(std::remove_if(s.begin(), s.end(), &Matcher::nonAlphaNumeric), s.end());
 }
 
 unsigned int Matcher::levenshteinDistance(const std::string& s1, const std::string& s2) {

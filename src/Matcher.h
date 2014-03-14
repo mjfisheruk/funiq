@@ -1,56 +1,60 @@
-#ifndef _FUNIQ_MATCHER_
-#define _FUNIQ_MATCHER_
-
-#include <algorithm>
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include <functional>
 #include <cctype>
+#include <fstream>
 #include <map>
-
-#include "Settings.h"
 
 typedef std::vector<std::string> StringList;
 typedef std::map< std::string, StringList* > StringListMap;
 
-class Matcher{
-public:
-	Matcher(Settings& settings);
-	~Matcher();
-	void add(std::string line);
-	void show(std::ostream* line);
-private:
-	Settings& _settings;
+class Matcher {
+	StringList* lines;
 	StringListMap* matchMap;
-	void lowercase(std::string& s);
-	void removeNonAlphaNumeric(std::string& s);
+	FuniqSettings* settings;
+public:
+	Matcher(FuniqSettings& settings);
+	~Matcher();
+	void add(std::string& line);
+	void show(std::ostream &output);
+private:
 	unsigned int levenshteinDistance(const std::string& s1, const std::string& s2);
+	void lowercase(std::string& s);
+	bool nonAlphaNumeric(char c);
+	void removeNonAlphaNumeric(std::string& s);
 };
 
-Matcher::Matcher(Settings& settings):_settings(settings) {
+Matcher::Matcher(FuniqSettings& settings) {
+	this->settings = &settings;
+	lines = new StringList();
 	matchMap = new StringListMap();
 }
 
 Matcher::~Matcher() {
-	delete(matchMap);
+	delete lines;
+	delete matchMap;
 }
 
-void Matcher::add(std::string line) {
+void Matcher::add(std::string& line) {
 	bool matchFound = false;
-	if(_settings.caseInsensitive) lowercase(line);
-	if(_settings.ignoreNonAlphaNumeric) removeNonAlphaNumeric(line);
+	std::string formattedLine = line;
+	if(settings->caseInsensitive) this->lowercase(formattedLine);
+	if(settings->ignoreNonAlphaNumeric) removeNonAlphaNumeric(formattedLine);
+
 	for(auto matchPair : *matchMap) {
+	
 		std::string key = matchPair.first;
-		if(_settings.caseInsensitive) lowercase(key);
+		if(settings->caseInsensitive) lowercase(key);
+		if(settings->ignoreNonAlphaNumeric) removeNonAlphaNumeric(key);
 		StringList* matchList = matchPair.second;	
-		if(levenshteinDistance(line, key) <= _settings.maxEditDistance) {
+		if(levenshteinDistance(formattedLine, key) <= settings->maxEditDistance) {
 			matchFound = true;
 			key = matchPair.first;
 			matchList->push_back(line);
 			continue;
 		}
 	}
-
 	if(!matchFound) {
 		StringList* matchList = new StringList(0);
 		matchList->push_back(line);
@@ -58,29 +62,8 @@ void Matcher::add(std::string line) {
 	}
 }
 
-void Matcher::show(std::ostream* output) {
-	for(auto matchPair : *matchMap) {
-		StringList v = *matchPair.second;
-		bool first = true;
-		for(std::string matchItem : v) {
-			if(first || _settings.showAllMatches) {
-				if(!first) *output << "\t";
-				*output << matchItem;
-				first = false;
-			}
-		}
-		*output << std::endl;
-	}
-}
-
-void Matcher::lowercase(std::string& s) {
-	transform(s.begin(), s.end(), s.begin(), ::tolower);
-}
-
-void Matcher::removeNonAlphaNumeric(std::string& s) {
-	s.erase(std::remove_if(s.begin(), s.end(), [](const char& c){
-                return !std::isalnum(c);
-              }), s.end());
+void Matcher::show(std::ostream &output) {
+	
 }
 
 unsigned int Matcher::levenshteinDistance(const std::string& s1, const std::string& s2) {
@@ -106,4 +89,14 @@ unsigned int Matcher::levenshteinDistance(const std::string& s1, const std::stri
 	return prevCol[len2];
 }
 
-#endif
+void Matcher::lowercase(std::string& s) {
+	transform(s.begin(), s.end(), s.begin(), ::tolower);
+}
+
+bool Matcher::nonAlphaNumeric(char c) {
+	return !std::isalnum(c);
+}
+
+void Matcher::removeNonAlphaNumeric(std::string& s) {
+	s.erase(std::remove_if(s.begin(), s.end(), &Matcher::nonAlphaNumeric), s.end());
+}

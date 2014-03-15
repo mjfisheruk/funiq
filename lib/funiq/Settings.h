@@ -1,14 +1,14 @@
 #ifndef _FUNIQ_SETTINGS_
 #define _FUNIQ_SETTINGS_
 
-struct FuniqSettings
+struct Settings
 {
-	FuniqSettings() :
+	Settings() :
 		maxEditDistance(3),
 		caseInsensitive(false),
 		showAllMatches(false),
 		showTotals(false),
-		ignoreNonAlphaNumeric(false) {}
+		ignoreNonAlphaNumeric(false){}
 
 	unsigned int maxEditDistance;
 	bool caseInsensitive;

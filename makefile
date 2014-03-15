@@ -5,4 +5,4 @@ OUT=bin/funiq
 all: funiq
 
 funiq:
-	$(CC) $(CFLAGS) -Ilib/ src/funiq.cpp -o $(OUT)
+	$(CC) $(CFLAGS) -Ilib src/funiq.cpp -o $(OUT)

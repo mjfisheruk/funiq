@@ -25,7 +25,7 @@ Results in:
 	The Return of the King
 	The Two Towers
 
-Which is ok, but hasn't faired too well with The Fellowship of the Ring. Using the -d option, we can increase the threashold at which matches are considered (default is 3):
+Which is ok, but it hasn't produced the desired results with The Fellowship of the Ring. Using the -d option, we can increase the threshold at which matches are considered (default is 3):
 
 	$ bin/funiq -ci -d 4 test.txt
 
@@ -37,7 +37,7 @@ Which is what we were looking for.
 
 Funiq can read from a file or have its input piped from stdin.
 
-  USAGE: 
+	USAGE: 
 
      funiq  [-c] [-t] [-a] [-i] [-d <integer>] [--] [--version] [-h]
                 <filename>

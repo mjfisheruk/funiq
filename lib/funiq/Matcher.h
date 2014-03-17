@@ -37,16 +37,18 @@ Matcher::~Matcher() {
 
 void Matcher::add(std::string line) {
 	bool matchFound = false;
-	if(_settings.caseInsensitive) lowercase(line);
-	if(_settings.ignoreNonAlphaNumeric) removeNonAlphaNumeric(line);
+	std::string normalizedLine = line;
+	if(_settings.caseInsensitive) lowercase(normalizedLine);
+	if(_settings.ignoreNonAlphaNumeric) removeNonAlphaNumeric(normalizedLine);
 	for(auto matchPair : *matchMap) {
 		std::string key = matchPair.first;
-		if(_settings.caseInsensitive) lowercase(key);
+		std::string normalizedKey = key;
+		if(_settings.caseInsensitive) lowercase(normalizedKey);
+		if(_settings.ignoreNonAlphaNumeric) removeNonAlphaNumeric(normalizedKey);
 		StringList* matchList = matchPair.second;	
-		if(levenshteinDistance(line, key) <= _settings.maxEditDistance) {
+		if(levenshteinDistance(normalizedLine, normalizedKey) <= _settings.maxEditDistance) {
 			matchFound = true;
-			key = matchPair.first;
-			matchList->push_back(line);
+			matchList->push_back(normalizedLine);
 			continue;
 		}
 	}

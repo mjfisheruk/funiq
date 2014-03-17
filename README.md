@@ -1,4 +1,4 @@
-Funiq (fuzzy uniq) is a command line tool for performing fuzzy string matching against lists of words.
+Funiq (fuzzy uniq) is a command line tool for performing fuzzy string matching against lists of words. To compile, clone the source and run make at the project's root; the funiq binary will be compiled to the bin/ directory.
 
 As an example, consider the file test.txt:
 
@@ -15,7 +15,7 @@ As an example, consider the file test.txt:
 
 Running funiq on this list and telling it to ignore casing (-i) and non-alphanumeric characters (-c)
 
-	$ bin/funiq -ci test.txt
+	$ funiq -ci test.txt
 
 Results in:
 
@@ -27,7 +27,7 @@ Results in:
 
 Which is ok, but it hasn't produced the desired results with The Fellowship of the Ring. Using the -d option, we can increase the threshold at which matches are considered (default is 3):
 
-	$ bin/funiq -ci -d 4 test.txt
+	$ funiq -ci -d 4 test.txt
 
 	The Fellowship of The Ring
 	The Return of the King
@@ -75,4 +75,6 @@ Funiq can read from a file or have its input piped from stdin.
 
 
 	   funiq - Fuzzy Unique Filtering
+
+
 

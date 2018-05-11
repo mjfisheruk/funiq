@@ -39,7 +39,7 @@ Funiq can read from a file or have its input piped from stdin.
 
 	USAGE: 
 
-     funiq  [-c] [-t] [-a] [-i] [-d <integer>] [--] [--version] [-h]
+     funiq  [-c] [-a] [-i] [-I] [-d <integer>] [--] [--version] [-h]
                 <filename>
 
 

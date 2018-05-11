@@ -45,12 +45,13 @@ Funiq can read from a file or have its input piped from stdin.
 
 	Where: 
 
-	   -c,  --ignore-non-alpha-numeric
+	   -I,  --ignore-non-alpha-numeric
 	     When active, non-alphanumeric characters do not contribute to edit
 	     distance.
 
-	   -t,  --show-totals
-	     Shows total number of matches per item
+	   -c,  --show-counts
+	     Precede each output line with the count of the number of times the line occurred
+	     in the input, followed by a single space.
 
 	   -a,  --show-all
 	     Will show all found duplicates
@@ -60,6 +61,7 @@ Funiq can read from a file or have its input piped from stdin.
 
 	   -d <integer>,  --distance <integer>
 	     Maximum edit distance between two strings to be considered a match.
+	     Default: 3
 
 	   --,  --ignore_rest
 	     Ignores the rest of the labeled arguments following this flag.

@@ -12,7 +12,7 @@
 
 void parseCommandLine(int argc, char** argv, std::string& filename, Settings& settings) {
 	
-		TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.1");
+		TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.2");
 	
 	TCLAP::UnlabeledValueArg<std::string> filenameArg (
 		"filename",
@@ -29,10 +29,10 @@ void parseCommandLine(int argc, char** argv, std::string& filename, Settings& se
 		"a","show-all",
 		"Will show all found duplicates");
 	TCLAP::SwitchArg showTotalsSwitch(
-		"t","show-totals",
-		"Shows total number of matches per item");
+		"c","show-counts",
+		"Precede each output line with the count of the number of times the line occurredin the input, followed by a single space.");
 	TCLAP::SwitchArg ignoreNonAlphaNumericSwitch(
-		"c","ignore-non-alpha-numeric",
+		"I","ignore-non-alpha-numeric",
 		"When active, non-alphanumeric characters do not contribute to edit distance.");
 	
 	cmd.add(filenameArg);

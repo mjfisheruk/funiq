@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <functional>
 #include <cctype>
 #include <map>
@@ -60,12 +61,17 @@ void Matcher::add(std::string line) {
 	}
 }
 
+// todo: count max width necessary
 void Matcher::show(std::ostream* output) {
 	for(auto matchPair : *matchMap) {
 		StringList v = *matchPair.second;
 		bool first = true;
 		for(std::string matchItem : v) {
 			if(first || _settings.showAllMatches) {
+				if(first && _settings.showTotals)
+					*output << 
+						std::setw(_settings.totalsFieldWidth) <<
+						v.size() << " "; // space for compatibility with GNU uniq
 				if(!first) *output << "\t";
 				*output << matchItem;
 				first = false;

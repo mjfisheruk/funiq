@@ -8,8 +8,8 @@ struct Settings
 		caseInsensitive(false),
 		showAllMatches(false),
 		showTotals(false),
-		ignoreNonAlphaNumeric(false),
-		totalsFieldWidth(7){} // count-field width 7 used by GNU uniq
+		ignoreNonAlphaNumeric(false)
+		{}
 
 	unsigned int maxEditDistance;
 	bool caseInsensitive;

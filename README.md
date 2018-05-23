@@ -13,9 +13,9 @@ As an example, consider the file test.txt:
 	Return of the King
 	Teh return of theking
 
-Running funiq on this list and telling it to ignore casing (-i) and non-alphanumeric characters (-c)
+Running funiq on this list and telling it to ignore casing (-i) and non-alphanumeric characters (-I)
 
-	$ funiq -ci test.txt
+	$ funiq -iI test.txt
 
 Results in:
 
@@ -27,7 +27,7 @@ Results in:
 
 Which is ok, but it hasn't produced the desired results with The Fellowship of the Ring. Using the -d option, we can increase the threshold at which matches are considered (default is 3):
 
-	$ funiq -ci -d 4 test.txt
+	$ funiq -iI -d 4 test.txt
 
 	The Fellowship of The Ring
 	The Return of the King

@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 		std::string filename;
 		Settings settings;
 		parseCommandLine(argc, argv, filename, settings);
-		
+
 		Matcher matcher(settings);
 		std::istream* inputStream = getInput(filename);		
 		for (std::string line; getline(*inputStream, line); ) {

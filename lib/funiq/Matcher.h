@@ -11,6 +11,8 @@
 
 #include "Settings.h"
 
+#define TOTALS_FIELD_WIDTH 7 // count-field width 7 used by GNU uniq
+
 typedef std::vector<std::string> StringList;
 typedef std::map< std::string, StringList* > StringListMap;
 
@@ -70,7 +72,7 @@ void Matcher::show(std::ostream* output) {
 			if(first || _settings.showAllMatches) {
 				if(first && _settings.showTotals)
 					*output << 
-						std::setw(_settings.totalsFieldWidth) <<
+						std::setw(TOTALS_FIELD_WIDTH) <<
 						v.size() << " "; // space for compatibility with GNU uniq
 				if(!first) *output << "\t";
 				*output << matchItem;

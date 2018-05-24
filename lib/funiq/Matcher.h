@@ -4,11 +4,14 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <functional>
 #include <cctype>
 #include <map>
 
 #include "Settings.h"
+
+#define TOTALS_FIELD_WIDTH 7 // count-field width 7 used by GNU uniq
 
 typedef std::vector<std::string> StringList;
 typedef std::map< std::string, StringList* > StringListMap;
@@ -60,12 +63,17 @@ void Matcher::add(std::string line) {
 	}
 }
 
+// todo: count max width necessary
 void Matcher::show(std::ostream* output) {
 	for(auto matchPair : *matchMap) {
 		StringList v = *matchPair.second;
 		bool first = true;
 		for(std::string matchItem : v) {
 			if(first || _settings.showAllMatches) {
+				if(first && _settings.showTotals)
+					*output << 
+						std::setw(TOTALS_FIELD_WIDTH) <<
+						v.size() << " "; // space for compatibility with GNU uniq
 				if(!first) *output << "\t";
 				*output << matchItem;
 				first = false;

@@ -8,13 +8,15 @@ struct Settings
 		caseInsensitive(false),
 		showAllMatches(false),
 		showTotals(false),
-		ignoreNonAlphaNumeric(false){}
+		ignoreNonAlphaNumeric(false)
+		{}
 
 	unsigned int maxEditDistance;
 	bool caseInsensitive;
 	bool showAllMatches;
 	bool showTotals;
 	bool ignoreNonAlphaNumeric;
+	int totalsFieldWidth;
 };
 
 #endif

@@ -13,9 +13,9 @@ As an example, consider the file test.txt:
 	Return of the King
 	Teh return of theking
 
-Running funiq on this list and telling it to ignore casing (-i) and non-alphanumeric characters (-c)
+Running funiq on this list and telling it to ignore casing (-i) and non-alphanumeric characters (-I)
 
-	$ funiq -ci test.txt
+	$ funiq -iI test.txt
 
 Results in:
 
@@ -27,7 +27,7 @@ Results in:
 
 Which is ok, but it hasn't produced the desired results with The Fellowship of the Ring. Using the -d option, we can increase the threshold at which matches are considered (default is 3):
 
-	$ funiq -ci -d 4 test.txt
+	$ funiq -iI -d 4 test.txt
 
 	The Fellowship of The Ring
 	The Return of the King
@@ -39,18 +39,19 @@ Funiq can read from a file or have its input piped from stdin.
 
 	USAGE: 
 
-     funiq  [-c] [-t] [-a] [-i] [-d <integer>] [--] [--version] [-h]
+     funiq  [-c] [-a] [-i] [-I] [-d <integer>] [--] [--version] [-h]
                 <filename>
 
 
 	Where: 
 
-	   -c,  --ignore-non-alpha-numeric
+	   -I,  --ignore-non-alpha-numeric
 	     When active, non-alphanumeric characters do not contribute to edit
 	     distance.
 
-	   -t,  --show-totals
-	     Shows total number of matches per item
+	   -c,  --show-counts
+	     Precede each output line with the count of the number of times the line occurred
+	     in the input, followed by a single space.
 
 	   -a,  --show-all
 	     Will show all found duplicates
@@ -60,6 +61,7 @@ Funiq can read from a file or have its input piped from stdin.
 
 	   -d <integer>,  --distance <integer>
 	     Maximum edit distance between two strings to be considered a match.
+	     Default: 3
 
 	   --,  --ignore_rest
 	     Ignores the rest of the labeled arguments following this flag.

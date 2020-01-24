@@ -12,16 +12,20 @@
 
 void parseCommandLine(int argc, char** argv, std::string& filename, Settings& settings) {
 	
-		TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.2");
+	TCLAP::CmdLine cmd("funiq - Fuzzy Unique Filtering", ' ', "0.3.0");
 	
 	TCLAP::UnlabeledValueArg<std::string> filenameArg (
 		"filename",
 		"File to read. If omitted will read from stdin.",
 		false, "", "filename");
-	TCLAP::ValueArg<unsigned int> distanceArg(
+	TCLAP::ValueArg<float> distanceArg(
 		"d","distance",
-		"Maximum edit distance between two strings to be considered a match.",
-		false, 3, "integer");
+		"Maximum distance threshold between two strings to be considered duplicates.\n"
+		"For the default Levenshtein comparison method, it is the maximum edit distance "
+		"allowed for two strings to be considered duplicates.\n"
+		"For the Normalized Levenshtein comparison method, it is a number between 0.0 and 1.0 "
+		"representing 0% and 100% similarity respectively.",
+		false, 3, "number");
 	TCLAP::SwitchArg caseSwitch(
 		"i","case-insensitive",
 		"When active, case differences do not contribute to edit distance.");
@@ -30,12 +34,24 @@ void parseCommandLine(int argc, char** argv, std::string& filename, Settings& se
 		"Will show all found duplicates");
 	TCLAP::SwitchArg showTotalsSwitch(
 		"c","show-counts",
-		"Precede each output line with the count of the number of times the line occurredin the input, followed by a single space.");
+		"Precede each output line with the count of the number of times the line occurred"
+		"in the input, followed by a single space.");
 	TCLAP::SwitchArg ignoreNonAlphaNumericSwitch(
 		"I","ignore-non-alpha-numeric",
 		"When active, non-alphanumeric characters do not contribute to edit distance.");
+
+	std::vector<std::string> allowedComparisonMethods;
+	allowedComparisonMethods.push_back("levenshtein");
+	allowedComparisonMethods.push_back("normalized-levenshtein");
+	TCLAP::ValuesConstraint<std::string> comparisonMethodsConstraint(allowedComparisonMethods);
+
+	TCLAP::ValueArg<std::string> comparisonMethodArg(
+			"m","method",
+			"The method used to compare similarity of strings. Defaults to 'levenshtein'",
+			false, "levenshtein", &comparisonMethodsConstraint);
 	
 	cmd.add(filenameArg);
+	cmd.add(comparisonMethodArg);
 	cmd.add(distanceArg);
 	cmd.add(caseSwitch);
 	cmd.add(showAllSwitch);
@@ -43,11 +59,16 @@ void parseCommandLine(int argc, char** argv, std::string& filename, Settings& se
 	cmd.add(ignoreNonAlphaNumericSwitch);
 	cmd.parse(argc, argv);
 
-	settings.maxEditDistance = distanceArg.getValue();
+	settings.maxDistance = distanceArg.getValue();
 	settings.caseInsensitive = caseSwitch.getValue();
 	settings.showAllMatches	= showAllSwitch.getValue();
 	settings.showTotals = showTotalsSwitch.getValue();
 	settings.ignoreNonAlphaNumeric = ignoreNonAlphaNumericSwitch.getValue();
+
+	std::string comparisonMethod = comparisonMethodArg.getValue();
+	if(comparisonMethod == "levenshtein") settings.comparisonMethod = Levenshtein;
+	if(comparisonMethod == "normalized-levenshtein") settings.comparisonMethod = NormalizedLevenshtein;
+
 	filename = filenameArg.getValue();	
 }
 

@@ -78,5 +78,12 @@ Funiq can read from a file or have its input piped from stdin.
 
 	   funiq - Fuzzy Unique Filtering
 
+# Installation
 
+You will need the GNU compiler collection installed, along with the make build tool. Clone the project, and run
 
+```
+make
+```
+
+in the project directory. The test project should compile and run, followed by the `funiq` tool itself. The compiled binary is placed in `bin/funiq`.

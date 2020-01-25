@@ -28,13 +28,13 @@ void parseCommandLine(int argc, char** argv, std::string& filename, Settings& se
 		false, 3, "number");
 	TCLAP::SwitchArg caseSwitch(
 		"i","case-insensitive",
-		"When active, case differences do not contribute to edit distance.");
+		"When active, case differences do not contribute to distance between strings.");
 	TCLAP::SwitchArg showAllSwitch(
 		"a","show-all",
 		"Will show all found duplicates");
 	TCLAP::SwitchArg showTotalsSwitch(
 		"c","show-counts",
-		"Precede each output line with the count of the number of times the line occurred"
+		"Precede each output line with the count of the number of times the line occurred "
 		"in the input, followed by a single space.");
 	TCLAP::SwitchArg ignoreNonAlphaNumericSwitch(
 		"I","ignore-non-alpha-numeric",

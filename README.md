@@ -51,13 +51,14 @@ Funiq can read from a file or have its input piped from stdin.
     
        -c,  --show-counts
          Precede each output line with the count of the number of times the
-         line occurredin the input, followed by a single space.
+         line occurred in the input, followed by a single space.
     
        -a,  --show-all
          Will show all found duplicates
     
        -i,  --case-insensitive
-         When active, case differences do not contribute to edit distance.
+         When active, case differences do not contribute to distance between
+         strings.
     
        -d <number>,  --distance <number>
          Maximum distance threshold between two strings to be considered

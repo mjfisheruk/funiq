@@ -4,6 +4,7 @@
 #include "catch/catch.hpp"
 #include "funiq/Settings.h"
 #include "funiq/Matcher.h"
+#include "funiq/similarity.h"
 
 std::string getNextLine(std::stringstream *stream) {
     std::string line;
@@ -115,4 +116,18 @@ TEST_CASE( "Normalised Levenshtein setting for short and long strings", "[matche
 	REQUIRE(getNextLine(&output) == "monkey");
 	REQUIRE(getNextLine(&output) == "rat");
 	REQUIRE(getNextLine(&output) == "");
+}
+
+TEST_CASE( "similarity::levenshteinDistance returns correct values", "[levenshtein]" ) {
+	REQUIRE(similarity::levenshteinDistance("cat", "rat") == 1);
+	REQUIRE(similarity::levenshteinDistance("hello", "helo") == 1);
+	REQUIRE(similarity::levenshteinDistance("think", "thinky") == 1);
+	REQUIRE(similarity::levenshteinDistance("hair", "head") == 3);
+}
+
+TEST_CASE( "similarity::normalizedLevenshtein returns correct values", "[levenshtein]" ) {
+	REQUIRE(similarity::normalizedLevenshtein("fear", "wear") == 0.25);
+	REQUIRE(similarity::normalizedLevenshtein("here", "hear") == 0.5);
+	REQUIRE(similarity::normalizedLevenshtein("not", "yes") == 1);
+	REQUIRE(similarity::normalizedLevenshtein("same", "same") == 0);
 }

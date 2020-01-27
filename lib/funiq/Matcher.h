@@ -10,11 +10,13 @@
 #include <map>
 
 #include "Settings.h"
+#include "similarity.h"
 
 #define TOTALS_FIELD_WIDTH 7 // count-field width 7 used by GNU uniq
 
 typedef std::vector<std::string> StringList;
 typedef std::map< std::string, StringList* > StringListMap;
+
 
 class Matcher{
 public:
@@ -27,7 +29,7 @@ private:
 	StringListMap* matchMap;
 	void lowercase(std::string& s);
 	void removeNonAlphaNumeric(std::string& s);
-	unsigned int levenshteinDistance(const std::string& s1, const std::string& s2);
+	bool isMatch(const std::string& s1, const std::string& s2);
 };
 
 Matcher::Matcher(Settings& settings):_settings(settings) {
@@ -49,7 +51,7 @@ void Matcher::add(std::string line) {
 		if(_settings.caseInsensitive) lowercase(normalizedKey);
 		if(_settings.ignoreNonAlphaNumeric) removeNonAlphaNumeric(normalizedKey);
 		StringList* matchList = matchPair.second;	
-		if(levenshteinDistance(normalizedLine, normalizedKey) <= _settings.maxEditDistance) {
+		if(isMatch(normalizedLine, normalizedKey)) {
 			matchFound = true;
 			matchList->push_back(normalizedLine);
 			continue;
@@ -83,37 +85,23 @@ void Matcher::show(std::ostream* output) {
 	}
 }
 
+bool Matcher::isMatch(const std::string& s1, const std::string& s2) {
+	if (_settings.comparisonMethod == NormalizedLevenshtein) {
+		return similarity::normalizedLevenshtein(s1, s2) <= _settings.maxDistance;
+	}
+	return similarity::levenshteinDistance(s1, s2) <= _settings.maxDistance;
+}
+
 void Matcher::lowercase(std::string& s) {
 	transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
 void Matcher::removeNonAlphaNumeric(std::string& s) {
 	s.erase(std::remove_if(s.begin(), s.end(), [](const char& c){
-                return !std::isalnum(c);
-              }), s.end());
+		return !std::isalnum(c);
+	}), s.end());
 }
 
-unsigned int Matcher::levenshteinDistance(const std::string& s1, const std::string& s2) {
-	
-	unsigned int len1 = s1.size();
-	unsigned int len2 = s2.size();
-	std::vector<unsigned int> col(len2+1);
-	std::vector<unsigned int> prevCol(len2+1);
 
-	for (unsigned int i = 0; i < prevCol.size(); i++) {
-		prevCol[i] = i;
-	}
-	for (unsigned int i = 0; i < len1; i++) {
-		col[0] = i+1;
-		for (unsigned int j = 0; j < len2; j++) {
-			col[j+1] = std::min(
-				std::min( 1 + col[j], 1 + prevCol[1 + j]),
-				prevCol[j] + (s1[i]==s2[j] ? 0 : 1)
-			);
-		}
-		col.swap(prevCol);
-	}
-	return prevCol[len2];
-}
 
 #endif

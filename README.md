@@ -37,46 +37,58 @@ Which is what we were looking for.
 
 Funiq can read from a file or have its input piped from stdin.
 
-	USAGE: 
-
-     funiq  [-c] [-a] [-i] [-I] [-d <integer>] [--] [--version] [-h]
-                <filename>
-
-
-	Where: 
-
-	   -I,  --ignore-non-alpha-numeric
-	     When active, non-alphanumeric characters do not contribute to edit
-	     distance.
-
-	   -c,  --show-counts
-	     Precede each output line with the count of the number of times the line occurred
-	     in the input, followed by a single space.
-
-	   -a,  --show-all
-	     Will show all found duplicates
-
-	   -i,  --case-insensitive
-	     When active, case differences do not contribute to edit distance.
-
-	   -d <integer>,  --distance <integer>
-	     Maximum edit distance between two strings to be considered a match.
-	     Default: 3
-
-	   --,  --ignore_rest
-	     Ignores the rest of the labeled arguments following this flag.
-
-	   --version
-	     Displays version information and exits.
-
-	   -h,  --help
-	     Displays usage information and exits.
-
-	   <filename>
-	     File to read. If omitted will read from stdin.
-
-
-	   funiq - Fuzzy Unique Filtering
+    USAGE: 
+    
+       bin/funiq  [-I] [-c] [-a] [-i] [-d <number>] [-m <levenshtein
+                  |normalized-levenshtein>] [--] [--version] [-h] <filename>
+    
+    
+    Where: 
+    
+       -I,  --ignore-non-alpha-numeric
+         When active, non-alphanumeric characters do not contribute to edit
+         distance.
+    
+       -c,  --show-counts
+         Precede each output line with the count of the number of times the
+         line occurred in the input, followed by a single space.
+    
+       -a,  --show-all
+         Will show all found duplicates
+    
+       -i,  --case-insensitive
+         When active, case differences do not contribute to distance between
+         strings.
+    
+       -d <number>,  --distance <number>
+         Maximum distance threshold between two strings to be considered
+         duplicates.
+    
+         For the default Levenshtein comparison method, it is the maximum edit
+         distance allowed for two strings to be considered duplicates.
+    
+         For the Normalized Levenshtein comparison method, it is a number
+         between 0.0 and 1.0 representing 0% and 100% similarity respectively.
+    
+       -m <levenshtein|normalized-levenshtein>,  --method <levenshtein
+          |normalized-levenshtein>
+         The method used to compare similarity of strings. Defaults to
+         'levenshtein'
+    
+       --,  --ignore_rest
+         Ignores the rest of the labeled arguments following this flag.
+    
+       --version
+         Displays version information and exits.
+    
+       -h,  --help
+         Displays usage information and exits.
+    
+       <filename>
+         File to read. If omitted will read from stdin.
+    
+    
+       funiq - Fuzzy Unique Filtering
 
 # Installation
 
